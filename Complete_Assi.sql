@@ -325,38 +325,4 @@ select * from Product order by UnitPrice desc
 --8. Find total number of orders for each customer, including customers with no orders.
 select * from Customer c left join Orders o on c.CustomerID=o.CustomerID
 
---9. Find total completed sales amount for each customer.
-select * from customer
-select * from Department
-select * from SalesTarget
---10. Find customers whose completed sales amount is greater than 50000.
---11. Find average product price for each product category.
---12. Find the highest-priced product in each category.
---13. Display employees with their department names and salaries.
---14. Find employees whose salary is greater than the average salary.
---15. Find the second-highest distinct employee salary.
---16. Find departments having at least 2 employees.
---17. Display each employee and manager name using a self join.
---18. Find departments that currently have no inactive employee.
---19. Find customers who have never placed an order.
---20. Find customers who have at least one completed order.
---21. Find total completed order value by month.
---22. Find the top 3 customers based on completed sales value.
---23. Find duplicate customer names and their count.
---24. Display each order with customer name, product name, quantity and calculated order value.
---25. Find completed orders whose value is greater than the average completed order value.
---26. Use CASE to classify customers as High Value when completed sales are at least 75000, otherwise Regular.
---27. Use COALESCE to display missing customer cities as Not Provided.
---28. Find the latest order date for every customer.
---29. For every customer, show each order and the previous order value using LAG().
---30. Rank employees by salary within each department using RANK().
---31. Show employee salary rank without gaps using DENSE_RANK().
---32. Assign a unique row number to employees within each department based on joining date.
---33. For every customer, show the next order date using LEAD().
---34. Show each completed order and the difference between its value and the previous order value for the same customer.
---35. Using a CTE, calculate total completed sales by customer and return customers above 50000.
---36. Using a CTE, find the highest-paid employee in every department.
---37. Find products that have never been ordered.
---38. Find customers whose completed sales are greater than every completed sale made by customer 202.
---39. Compare monthly completed sales against SalesTarget and show target, actual and variance.
---40. Identify customers whose completed sales increased from their previous order using LAG().
+
