@@ -324,5 +324,121 @@ select * from Product order by UnitPrice desc
 
 --8. Find total number of orders for each customer, including customers with no orders.
 select * from Customer c left join Orders o on c.CustomerID=o.CustomerID
+--9. Find total completed sales amount for each customer.
+select c.customerid,sum(quantity*unitprice)total_sales_cust from customer c join dbo.Orders o on c.customerid=o.customerid
+where orderstatus='completed' group by c.customerid
 
+SELECT
+    c.customerid,
+    customername,
+    orderstatus,
+    SUM(quantity * unitprice) OVER (
+        PARTITION BY c.customerid
+    ) AS total_sales_cust
+FROM customer c
+JOIN dbo.Orders o
+    ON c.customerid = o.customerid
+WHERE orderstatus = 'completed';
+
+
+--10. Find customers whose completed sales amount is greater than 50000.
+with filter as(
+SELECT c.customerid,customername,orderstatus,SUM(quantity * unitprice) OVER ( PARTITION BY c.customerid ) AS total_sales_cust
+FROM customer c JOIN dbo.Orders o ON c.customerid = o.customerid
+)
+select * from filter WHERE orderstatus = 'completed'and total_sales_cust>50000;
+
+--11. Find average product price for each product category.
+select *,avg(unitprice) over(partition by category) avg_value from product
+
+--12. Find the highest-priced product in each category.
+select *,max(unitprice) over(partition by category) max_value from product
+
+
+--13. Display employees with their department names and salaries.
+select e.employeeid,employeename,departmentname,salary,location 
+from employee e join Department d on e.departmentid=d.departmentid
+
+--14. Find employees whose salary is greater than the average salary.
+select * from employee where salary>(select avg(salary) from employee)
+
+--15. Find the second-highest distinct employee salary.
+select min(salary) from employee where salary in (select distinct top 2 salary from employee order by salary desc)
+
+--16. Find departments having at least 2 employees.
+select * from dbo.department;
+select * from (select *,count(*) over(partition by departmentname) as count from department)  a
+where count>1;
+
+--17. Display each employee and manager name using a self join.
+select e1.employeeid,e1.employeename,e2.employeename as manager 
+from employee e1 left join employee e2 on e1.managerid=e2.employeeid
+
+--18. Find departments that currently have no inactive employee.
+select * from employee where employmentstatus='inactive'
+
+--19. Find customers who have never placed an order.
+select * from customer c where not exists (select 1 from orders o where c.customerid=o.customerid)
+
+--20. Find customers who have at least one completed order.
+select * from customer c where  exists (select * from orders o where c.customerid=o.customerid and orderstatus='completed')
+
+
+--21. Find total completed order value by month.
+select *,count(*) over(partition by datepart(month,orderdate) , datepart(year,orderdate) 
+order by datepart(month,orderdate) , datepart(year,orderdate) ) total_complete_monthorder from orders
+where orderstatus='completed'
+
+--22. Find the top 3 customers based on completed sales value.
+select top 3  c.customerid,sum(quantity*unitprice)total_sales_cust 
+from customer c join dbo.Orders o on c.customerid=o.customerid
+where orderstatus='completed' group by c.customerid
+
+
+--23. Find duplicate customer names and their count.
+select *,count(*) over(partition by customername) from customer
+
+--24. Display each order with customer name, product name, quantity and calculated order value.
+
+select customername,productname,o.quantity,o.quantity*o.unitprice as order_value
+from orders o left join customer c on o.customerid=c.customerid join Product p on o.ProductID=p.ProductID
+
+--25. Find completed orders whose value is greater than the average completed order value.
+select * from orders 
+where quantity*unitprice>
+(select avg(quantity*unitprice) from orders 
+where orderstatus='completed');
+
+--26. Use CASE to classify customers as High Value when completed sales are at least 75000, otherwise Regular.
+select  c.customerid,
+case
+when (sum(quantity*unitprice)>75000) then 'high value'
+else 'Regular'
+end
+as ratng 
+from customer c join dbo.Orders o on c.customerid=o.customerid
+where orderstatus='completed' group by c.customerid
+
+
+select  c.customerid,iif(sum(quantity*unitprice)>75000,'high_value','Regular')
+from customer c join dbo.Orders o on c.customerid=o.customerid
+where orderstatus='completed' group by c.customerid
+
+--27. Use COALESCE to display missing customer cities as Not Provided.
+select *,coalesce(city,'unknown') updated_city from customer
+
+--28. Find the latest order date for every customer.
+select *,max(orderdate) over(partition by c.customerid)latest_order_date
+from customer c join orders o on c.customerid=o.customerid
+
+--29. For every customer, show each order and the previous order value using LAG().
+select *,(quantity*unitprice)as value,lag(quantity*unitprice) 
+over(partition by c.customerid order by orderdate,orderid)previous_order 
+from customer c join orders o on c.customerid=o.customerid;
+
+--30. Rank employees by salary within each department using RANK().
+select * from department
+select * from employee
+select *, rank() over(partition by e.departmentid order by e.salary desc) 
+from employee e join department d on e.departmentid=d.departmentid
 
