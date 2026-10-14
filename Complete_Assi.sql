@@ -442,3 +442,56 @@ select * from employee
 select *, rank() over(partition by e.departmentid order by e.salary desc) 
 from employee e join department d on e.departmentid=d.departmentid
 
+--31. Show employee salary rank without gaps using DENSE_RANK().
+select *,DENSE_RANK() over(order by salary desc) from employee
+
+--32. Assign a unique row number to employees within each department based on joining date.
+select *,ROW_NUMBER() over(partition by departmentid order by joiningdate) from employee
+
+--33. For every customer, show the next order date using LEAD().
+select *,lead(orderdate,1) over(order by orderDate) from customer c join orders o on c.customerid=o.customerid
+
+--34. Show each completed order and the difference between its value and the previous order value for the same customer.
+ with diff as(
+ select *,lag(quantity*unitprice,1) over(partition by customerid order by orderDate) prev_value from orders
+ where orderstatus='completed')
+ select *,((quantity*unitprice)-prev_value) from diff
+
+--35. Using a CTE, calculate total completed sales by customer and return customers above 50000.
+
+with filter as(
+SELECT c.customerid,customername,orderstatus,SUM(quantity * unitprice) OVER ( PARTITION BY c.customerid )
+AS total_sales_cust
+FROM customer c JOIN dbo.Orders o ON c.customerid = o.customerid where orderstatus = 'completed'
+)
+select * from filter WHERE total_sales_cust>50000;
+
+
+--36. Using a CTE, find the highest-paid employee in every department.
+-- 36. Using a CTE, find the highest-paid employee in every department.
+
+WITH highest_salary AS (
+  SELECT *, RANK() OVER ( PARTITION BY departmentid ORDER BY salary DESC) AS rnk FROM employee)
+SELECT * FROM highest_salary WHERE rnk = 1;
+
+--37. Find products that have never been ordered.
+select * from product p where not exists (select 1 from orders o where p.productid=o.productid)
+
+--38. Find customers whose completed sales are greater than every completed sale made by customer 202.
+
+SELECT c.customerid,sum(quantity * unitprice) AS total_sales_cust
+FROM customer c JOIN dbo.Orders o ON c.customerid = o.customerid 
+where orderstatus = 'completed' group by c.customerid  having sum(quantity * unitprice) > all 
+(select quantity * unitprice from  orders where customerid=202 and orderstatus='completed')
+
+
+--39. Compare monthly completed sales against SalesTarget and show target, actual and variance.
+
+
+--40. Identify customers whose completed sales increased from their previous order using LAG().
+ with diff as(
+ select *,lag(quantity*unitprice,1) over(partition by customerid order by orderDate) prev_value from orders
+ where orderstatus='completed'),
+ diff_value as
+ (select *,((quantity*unitprice)-prev_value) as diff_value from diff)
+ select * from diff_value where quantity*unitprice > prev_value 
