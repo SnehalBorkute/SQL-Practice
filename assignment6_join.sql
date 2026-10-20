@@ -198,3 +198,31 @@ having avg(emp_salary) >5500
 order by AVG_SALARY desc;
 
 
+--Q20. FINAL – Workforce Coverage Dashboard
+--Create a management-ready department workforce report.
+--•	Include every department, including zero-employee departments.
+--•	Display DEPT_NAME, TOTAL_EMPLOYEES, TOTAL_SALARY and AVG_SALARY.
+--•	For employees, consider salary between 4500 and 7000.
+--•	Show departments with at least 2 qualifying employees OR zero employees.
+--•	Use JOIN, careful filtering, GROUP BY, HAVING and ORDER BY.
+--•	Write one line explaining why your JOIN is appropriate.
+
+
+ SELECT 
+    dj.DEPT_NAME,
+    COUNT(ej.EMP_ID) AS TOTAL_EMPLOYEES,
+    SUM(ej.EMP_SALARY) AS TOTAL_SALARY,
+    AVG(ej.EMP_SALARY) AS AVG_SALARY
+FROM EMPLOYEE_JOIN ej
+RIGHT JOIN DEPARTMENT_JOIN dj
+    ON ej.DEPT_ID = dj.DEPT_ID
+    AND ej.EMP_SALARY BETWEEN 4500 AND 7000
+GROUP BY dj.DEPT_NAME
+HAVING COUNT(ej.EMP_ID) >= 2
+    OR COUNT(ej.EMP_ID) = 0
+ORDER BY TOTAL_SALARY DESC;
+
+
+i apply right join beacause there is the condition including zero-employee departments
+
+
