@@ -1,4 +1,3 @@
---use practice
 
 --PART A – 10 INTERVIEW / THEORY QUESTIONS
 --Q1. What is a SQL JOIN?
