@@ -1,4 +1,4 @@
-
+use practice
 --PART A – 10 INTERVIEW / THEORY QUESTIONS
 --Q1. What is a SQL JOIN?
 --Explain why relational databases store information in multiple tables and how JOINs combine related business data.
